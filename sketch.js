@@ -1,9 +1,8 @@
-/* Setting up local environment and hosting game online
+/* Fitting into screens (windowWidth, windowHeight), 
+Array: touches[], 
 */
 
-var trex, trexI,ground, groundI, groundI2, invisibleground, cloudI, gamestate = "initial", gameover, velup=-6;
-var score=0;
-var score1 = "00000";
+var trex, trexI,ground, groundI, groundI2, invisibleground, cloudI, score = 0, gamestate = "play", gameover, velup=-6, touches=[];
 
 function preload(){  
   trexI = loadAnimation("trex1.png", "trex3.png", "trex4.png");
@@ -25,17 +24,19 @@ function preload(){
 }
 
 function setup() {
-  createCanvas(600, 200);
+  createCanvas(windowWidth, windowHeight/2);
   
-  trex = createSprite(40,100,20,60);
-  trex.addAnimation("t",trexI);
+  trex = createSprite(40,80,20,60);
+  trex.addAnimation("t",trex1);
+  trex.addAnimation("t2",trexI);
+  trex.addAnimation("t3",trexC); 
   trex.scale = 0.5;
   
    ground1 = createSprite(300,130,400,10);      
    ground1.addImage(groundI);
+  ground1.velocityX = -8;
   
-  
-  invisibleground = createSprite(200,140,400,10)
+  invisibleground = createSprite(200,135,400,10)
   invisibleground.visible = false;
   
   obs_group = new Group();
@@ -45,8 +46,8 @@ function setup() {
   //trex.setCollider("circle",0,-40,100);
   //trex.debug = true;
   
-  trex.setCollider("circle",0,0,40);
-  //trex.debug = true;
+  trex.setCollider("circle",0,0,30);
+  trex.debug = true;
   
   gameover= createSprite (300,80);
   gameover.addAnimation ("go",gameoverI);
@@ -60,19 +61,10 @@ function setup() {
 
 function draw() {
   
-    background(180);
-  if(keyDown("space")){
-    gamestate = "play";
-     }
- 
-if(gamestate == "initial"){
-  ground1.velocityX = 0;
-  gameover.visible=false;
-  restart.visible=false;
-  trex.addAnimation("t",trex1);
-}
-else if(gamestate == "play"){
-trex.addAnimation("t",trexI);
+    background(250);
+  
+ //console.log(Math.round(random(1,100)));
+if(gamestate == "play"){
  playGame();
 }
   
@@ -81,7 +73,7 @@ trex.addAnimation("t",trexI);
  }
   trex.collide(invisibleground);
   //trex.collide(ground1);
-  text("Score: "+ score1, 480,20); 
+  text("Score: "+Math.round(score), 480,20); 
   
   // console.log("Score: "+score);
  
@@ -89,31 +81,28 @@ trex.addAnimation("t",trexI);
  
 }
 function playGame(){
+  trex.changeAnimation("t2",trexI);
     // ground1.velocityX =  -(6 + score/100); 
     // console.log(ground1.velocityX);
-  trex.addAnimation("t",trexI);
-  ground1.velocityX = -6;
       if(ground1.x<200){
         ground1.x = 500;
       }
     //trex movement
-      if(keyDown("space") && trex.y >= 100 ){
-        trex.velocityY = -10;
+      if((touches.length>0 || keyDown("space")) && trex.y >= 100 ){
+        trex.velocityY = -12       ;
         jumpsound.play();
+        touches=[];
       }
     //to add gravity
       trex.velocityY = trex.velocityY + 1; 
     //to add the clouds
       clouds();
       obstacles();
-      
-     score = score + (Math.round(getFrameRate()/60));
-    score1 = scoreF()+score;
-     console.log(score1);
+     score = score+(Math.round(getFrameRate()/60));
+  //   console.log(score);
   // if(score%10 == 0){
   //   console.log(".....",score);
   // }
-  //*******************************************************
     if(score>0 && score%100 == 0){
       // velup = velup - 1;
        console.log(ground1.velocityX);
@@ -121,7 +110,6 @@ function playGame(){
        ground1.velocityX = ground1.velocityX - 0.1;
        obs_group.setVelocityXEach(ground1.velocityX);
     }
-  //***********************************************************
      if(trex.isTouching(obs_group)){  
        gamestate = "end";
        diesound.play();
@@ -134,7 +122,7 @@ function playGame(){
 }
 function endGame(){
    //trex.changeAnimation ("tr",trexC);  
-  trex.addAnimation("t",trexC); 
+  trex.changeAnimation("t3",trexC); 
   obs_group.setLifetimeEach(-1);
   cloud_group.setLifetimeEach(-1);                                        
     ground1.velocityX = 0;
@@ -156,7 +144,7 @@ function reset(){
      obs_group.destroyEach();
      cloud_group.destroyEach();
      score = 0;
-     ground1.velocityX = -6;
+     ground1.velocityX = -8.5;
   }
 function clouds(){
   var rand = Math.round(random(10,60));
@@ -181,7 +169,7 @@ function obstacles(){
     
     if(frameCount % 60==0){
        var obs = createSprite(700,110,20,80);
-        obs.velocityX= -(6 + score/100); 
+        obs.velocityX= -(8  + score/100); 
         
       var r = Math.round(random(1,6));
       
@@ -206,22 +194,4 @@ function obstacles(){
        }    
  
   }
-function scoreF(){
-  var score2="";
-  if(score>=0 && score<=9){
-    return "0000";
-  }
-  if(score>=10 && score<=99){
-    return "000";
-  }
-  if(score>=100 && score<=999){
-    return "00";
-  }
-  if(score>=1000 && score<=9999){
-    return "0";
-  }
-  if(score>=10000 && score<=99999){
-    return "";
-  }
-}
 
