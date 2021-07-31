@@ -2,7 +2,7 @@
 Array: touches[], 
 */
 
-var trex, trexI,ground, groundI, groundI2, invisibleground, cloudI, score = 0, gamestate = "play", gameover, velup=-6, touches=[];
+var trex, trexI,ground, groundI, groundI2, invisibleground, cloudI, score = 0, gamestate = "play", gameover, velup=-6, touches=[], speed=0;
 
 function preload(){  
   trexI = loadAnimation("trex1.png", "trex3.png", "trex4.png");
@@ -24,7 +24,7 @@ function preload(){
 }
 
 function setup() {
-  createCanvas(windowWidth, windowHeight/2);
+  createCanvas(1500, windowHeight/2); // fixes length of screen
   
   trex = createSprite(40,80,20,60);
   trex.addAnimation("t",trex1);
@@ -108,6 +108,7 @@ function playGame(){
        console.log(ground1.velocityX);
       speedup.play();
        ground1.velocityX = ground1.velocityX - 0.1;
+      speed = ground1.velocityX;
        obs_group.setVelocityXEach(ground1.velocityX);
     }
      if(trex.isTouching(obs_group)){  
@@ -137,7 +138,7 @@ function endGame(){
      reset();
    }
 }
-function reset(){
+function reset(){ // there is a much simpler way to do this, I made the function reset2() to show you
     gamestate = "play";
      //gameover.visible = false;
      // restart.visible = false;
@@ -146,6 +147,9 @@ function reset(){
      score = 0;
      ground1.velocityX = -8.5;
   }
+function reset2(){
+    location.reload(); //it works because you don't have any data that you need to keep or use later like a highscore or smth
+}
 function clouds(){
   var rand = Math.round(random(10,60));
   var ran = Math.round(random(4,10))*20;
@@ -168,8 +172,9 @@ function clouds(){
 function obstacles(){
     
     if(frameCount % 60==0){
-       var obs = createSprite(700,110,20,80);
-        obs.velocityX= -(8  + score/100); 
+       var obs = createSprite(700,105,20,80); //fixed the cacti hovering over the ground (hopefully because I can't test it)
+//         obs.velocityX= -(8  + score/100); 
+      obs.velocityX = speed; // should fix speed of cactus and ground
         
       var r = Math.round(random(1,6));
       
@@ -189,7 +194,7 @@ function obstacles(){
           default: break;
           }
        obs.scale = 0.5;
-       obs.lifetime = 400;
+       obs.lifetime = 4000; // might as well
          obs_group.add(obs);
        }    
  
